@@ -79,19 +79,19 @@ public class ProductsController(IGenericRepository<Product> repo) : ControllerBa
         return BadRequest("An error occurred deleting the product");
     }
 
-    // [HttpGet("brands")]
-    // public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
-    // {
-    //     // TODO: Implement this method
-    //     return Ok();
-    // }
+    [HttpGet("brands")]
+    public async Task<ActionResult<IReadOnlyList<string>>> GetBrands()
+    {
+        var spec = new BrandListSpecification();
+        return Ok(await repo.ListAsync(spec));
+    }
 
-    // [HttpGet("types")]
-    // public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
-    // {
-    //     // TODO: Implement this method
-    //     return Ok();
-    // }
+    [HttpGet("types")]
+    public async Task<ActionResult<IReadOnlyList<string>>> GetTypes()
+    {
+        var spec = new TypeListSpecification();
+        return Ok(await repo.ListAsync(spec));
+    }
 
     private bool ProductExists(int id) => repo.Exists(id);
 }
