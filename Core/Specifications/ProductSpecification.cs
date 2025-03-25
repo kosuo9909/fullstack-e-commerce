@@ -1,20 +1,17 @@
+using System.Security.Cryptography.X509Certificates;
 using Core.Entities;
 
 namespace Core.Specifications;
 
 public class ProductSpecification : BaseSpecifications<Product>
 {
-    public ProductSpecification(string? brand, string? type)
-    {
-    }
-
-    public ProductSpecification(string? brand, string? type, string? sort) : base(p =>
-        (string.IsNullOrWhiteSpace(brand) || p.Brand == brand) &&
-        (string.IsNullOrWhiteSpace(type) || p.Type == type)
+    public ProductSpecification(ProductSpecParams specParams) : base(p =>
+        (!specParams.Brands.Any() || specParams.Brands.Contains(p.Brand)) &&
+        (!specParams.Types.Any() || specParams.Types.Contains(p.Type))
     )
     {
 
-        switch (sort)
+        switch (specParams.Sort)
         {
             case "priceAsc":
                 AddOrderBy(p => p.Price);
