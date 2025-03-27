@@ -485,3 +485,5 @@ $RECYCLE.BIN/
 API/appsettings.json
 API/appsettings.Development.json
 docker-compose.yml
+client/ssl/localhost-key.pem
+client/ssl/localhost.pem
