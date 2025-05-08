@@ -1,0 +1,72 @@
+@if (products) {
+<div class="flex flex-col gap-3">
+  <div class="flex justify-between mb-3">
+    <mat-paginator
+      class="!bg-white"
+      [length]="products.count"
+      [pageSize]="shopParams.pageSize"
+      [pageSizeOptions]="[5, 10, 15, 20]"
+      (page)="handlePageEvent($event)"
+      [showFirstLastButtons]="true"
+      [pageIndex]="shopParams.pageNumber - 1"
+      aria-label="Select page"
+    ></mat-paginator>
+
+    <form
+      #searchForm="ngForm"
+      class="relative flex items-center w-full max-w-md mx-4"
+      (ngSubmit)="onSearchChange()"
+    >
+      <input
+        class="block w-full p-4 text-sm text-gray-900 border border-gray-300 rounded-lg"
+        placeholder="Search"
+        name="search"
+        id="search"
+        type="search"
+        [(ngModel)]="shopParams.search"
+      />
+
+      <button
+        mat-icon-button
+        type="submit"
+        class="absolute inset-y-0 right-12 flex items-center pl-3"
+      >
+        <mat-icon>search</mat-icon>
+      </button>
+    </form>
+
+    <div class="flex gap-3">
+      <button mat-stroked-button (click)="openFiltersDialog()">
+        <mat-icon>filter_list</mat-icon>
+        <span class="ml-2">Filters</span>
+      </button>
+      <button mat-stroked-button [matMenuTriggerFor]="sortMenu">
+        <mat-icon>swap_vert</mat-icon>
+        <span class="ml-2">Sort</span>
+      </button>
+    </div>
+  </div>
+</div>
+<div class="grid grid-cols-5 gap-4">
+  @for (product of products.data; track product.id) {
+  <app-product-item [product]="product"></app-product-item>
+  }
+</div>
+
+<mat-menu #sortMenu="matMenu">
+  <mat-selection-list
+    [multiple]="false"
+    (selectionChange)="onSortChange($event)"
+  >
+    @for (option of sortOptions; track $index) {
+    <mat-list-option
+      [value]="option.value"
+      [selected]="option.value === shopParams.sort"
+    >
+      {{ option.name }}
+    </mat-list-option>
+    }
+  </mat-selection-list>
+</mat-menu>
+
+}

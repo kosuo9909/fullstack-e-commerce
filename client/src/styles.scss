@@ -3,8 +3,6 @@
 
 $customTheme: mat.define-theme();
 
-@include mat.core();
-
 .custom-theme {
   @include mat.all-component-themes($customTheme);
   .mdc-button,
@@ -17,4 +15,37 @@ $customTheme: mat.define-theme();
 
 .container {
   @apply mx-auto;
+}
+
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  font-family: Roboto, "Helvetica Neue", sans-serif;
+}
+
+button.match-input-height {
+  height: var(--mat-form-field-container-height) !important;
+}
+
+.mdc-notched-outline__notch {
+  border-right-style: none !important;
+}
+
+.mat-mdc-snack-bar-container.snack-error {
+  --mdc-snackbar-container-color: red;
+  --mat-snack-bar-button-color: #fff;
+  --mdc-snackbar-supporting-text-color: #fff;
+}
+
+.mat-mdc-snack-bar-container.snack-success {
+  --mdc-snackbar-container-color: green;
+  --mat-snack-bar-button-color: #fff;
+  --mdc-snackbar-supporting-text-color: #fff;
+}
+
+.text-primary {
+  color: #7d00fa;
 }
