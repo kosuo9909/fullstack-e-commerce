@@ -1,5 +1,5 @@
 import { HttpClient } from '@angular/common/http';
-import { Injectable, signal } from '@angular/core';
+import { Injectable, computed, signal } from '@angular/core';
 import { Cart, CartItem, Product } from '@edi/app/shared/models';
 import { environment } from '@edi/environments/environment';
 import { map } from 'rxjs';
@@ -9,6 +9,22 @@ import { map } from 'rxjs';
 })
 export class CartService {
   public cart = signal<Cart | null>(null);
+  public itemCount = computed(
+    () => this.cart()?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0
+  );
+
+  public totals = computed(() => {
+    const subtotal =
+      this.cart()?.items.reduce(
+        (acc, item) => acc + item.quantity * item.price,
+        0
+      ) ?? 0;
+    const discount = 0;
+    const shipping = 0;
+    const total = subtotal - discount + shipping;
+    return { subtotal, discount, shipping, total };
+  });
+
   private _baseUrl = environment.apiUrl;
 
   public constructor(private _http: HttpClient) {}
@@ -42,18 +58,32 @@ export class CartService {
     this.setCart(cart);
   }
 
-  public removeItemFromCart(id: number) {
-    return this._http
-      .delete<Cart>(`${this._baseUrl}cart/${id}`)
-      .subscribe((cart) => {
-        this.cart.set(cart);
-      });
+  public removeItemFromCart(id: number, quantity = 1) {
+    const cart = this.cart();
+    if (!cart) return;
+
+    const index = cart.items.findIndex((item) => item.productId === id);
+    if (index !== -1) {
+      cart.items[index].quantity -= quantity;
+      if (cart.items[index].quantity === 0) {
+        cart.items.splice(index, 1);
+      }
+
+      if (cart.items.length === 0) {
+        this.deleteCart();
+      }
+    }
+
+    this.setCart(cart);
   }
 
-  public removeAllItemsFromCart() {
-    return this._http.delete<Cart>(`${this._baseUrl}cart`).subscribe((cart) => {
-      this.cart.set(cart);
-    });
+  public deleteCart() {
+    return this._http
+      .delete<Cart>(`${this._baseUrl}cart?id=${this.cart()?.id}`)
+      .subscribe(() => {
+        localStorage.removeItem('cart_id');
+        this.cart.set(null);
+      });
   }
 
   private createCart(): Cart {

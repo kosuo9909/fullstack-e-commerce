@@ -8,6 +8,7 @@ import { MatButton } from '@angular/material/button';
 import { MatBadge } from '@angular/material/badge';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { BusyService } from '../../core/services/busy.service';
+import { CartService } from '@edi/app/core/services/cart.service';
 @Component({
   selector: 'app-header',
   imports: [
@@ -24,5 +25,8 @@ import { BusyService } from '../../core/services/busy.service';
 export class HeaderComponent {
   public progressBarMode: ProgressBarMode = 'indeterminate';
 
-  public constructor(public busyService: BusyService) {}
+  public constructor(
+    public busyService: BusyService,
+    public cartService: CartService
+  ) {}
 }

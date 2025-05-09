@@ -17,13 +17,24 @@ $customTheme: mat.define-theme();
   @apply mx-auto;
 }
 
+/* Fix for unwanted vertical scrolling */
 html,
 body {
   height: 100%;
-}
-body {
   margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+}
+
+body {
   font-family: Roboto, "Helvetica Neue", sans-serif;
+  min-height: 100vh;
+  position: relative;
+}
+
+/* Remove the splash screen that might cause scrolling */
+#initial-splash {
+  display: none;
 }
 
 button.match-input-height {
@@ -48,4 +59,77 @@ button.match-input-height {
 
 .text-primary {
   color: #7d00fa;
+}
+
+/* Fix for Tailwind colors with Material components */
+.text-red-600,
+.text-red-600.mat-icon,
+.text-red-600 .mat-icon,
+mat-icon.text-red-600 {
+  color: #dc2626 !important;
+}
+
+.text-green-600,
+.text-green-600.mat-icon,
+.text-green-600 .mat-icon,
+mat-icon.text-green-600 {
+  color: #16a34a !important;
+}
+
+/* Add the rest of Tailwind colors as needed with high specificity */
+
+/* Direct styling for Material components - forget the complicated theming */
+
+/* Primary button styles */
+.mat-mdc-button.mat-primary,
+.mat-mdc-raised-button.mat-primary,
+.mat-mdc-unelevated-button.mat-primary,
+.mat-mdc-outlined-button.mat-primary {
+  --mdc-text-button-label-text-color: #3f51b5;
+  --mdc-filled-button-container-color: #3f51b5;
+  --mdc-filled-button-label-text-color: white;
+  --mdc-outlined-button-label-text-color: #3f51b5;
+  --mdc-outlined-button-outline-color: #3f51b5;
+}
+
+/* Warn/Delete button styles */
+.mat-mdc-button.mat-warn,
+.mat-mdc-raised-button.mat-warn,
+.mat-mdc-unelevated-button.mat-warn,
+.mat-mdc-outlined-button.mat-warn {
+  --mdc-text-button-label-text-color: #f44336;
+  --mdc-filled-button-container-color: #f44336;
+  --mdc-filled-button-label-text-color: white;
+  --mdc-outlined-button-label-text-color: #f44336;
+  --mdc-outlined-button-outline-color: #f44336;
+}
+
+/* Accent button styles */
+.mat-mdc-button.mat-accent,
+.mat-mdc-raised-button.mat-accent,
+.mat-mdc-unelevated-button.mat-accent,
+.mat-mdc-outlined-button.mat-accent {
+  --mdc-text-button-label-text-color: #ff4081;
+  --mdc-filled-button-container-color: #ff4081;
+  --mdc-filled-button-label-text-color: white;
+  --mdc-outlined-button-label-text-color: #ff4081;
+  --mdc-outlined-button-outline-color: #ff4081;
+}
+
+/* Icon styling */
+mat-icon.text-green-600,
+.text-green-600 mat-icon {
+  color: #16a34a !important;
+}
+
+mat-icon.text-red-600,
+.text-red-600 mat-icon {
+  color: #dc2626 !important;
+}
+
+/* Fix icon button centering */
+.mat-mdc-icon-button {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
 }
