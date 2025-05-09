@@ -5,6 +5,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { RouterLink } from '@angular/router';
+import { CartService } from '@edi/app/core/services/cart.service';
 
 @Component({
   selector: 'app-product-item',
@@ -20,4 +21,12 @@ import { RouterLink } from '@angular/router';
 })
 export class ProductItemComponent {
   @Input() public product?: Product;
+
+  public constructor(private _cartService: CartService) {}
+
+  public addItemToCart() {
+    if (this.product) {
+      this._cartService.addItemToCart(this.product);
+    }
+  }
 }
