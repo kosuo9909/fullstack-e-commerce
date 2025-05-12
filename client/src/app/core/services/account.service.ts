@@ -18,27 +18,29 @@ export class AccountService {
     params = params.append('useCookies', 'true');
 
     return this._http
-      .post<User>(`${this.baseUrl}/login`, values, { params })
+      .post<User>(`${this.baseUrl}login`, values, {
+        params,
+      })
       .pipe(map((user) => this.currentUser.set(user)));
   }
 
   public register(values: any) {
-    return this._http.post(`${this.baseUrl}/register`, values);
+    return this._http.post(`${this.baseUrl}register`, values);
   }
 
   public getUserInfo() {
     return this._http
-      .get<User>(`${this.baseUrl}/account/user-info`)
+      .get<User>(`${this.baseUrl}account/user-info`)
       .pipe(tap((user) => this.currentUser.set(user)));
   }
 
   public logout() {
     return this._http
-      .post(`${this.baseUrl}/logout`, {})
+      .post(`${this.baseUrl}account/logout`, {})
       .pipe(tap(() => this.currentUser.set(null)));
   }
 
   public updateAddress(address: Address) {
-    return this._http.put(`${this.baseUrl}/account/address`, address);
+    return this._http.put(`${this.baseUrl}account/address`, address);
   }
 }

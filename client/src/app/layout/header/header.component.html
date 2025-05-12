@@ -1,4 +1,4 @@
-<header class="p-3 w-full shadow-md bg-white sticky top-0 z-50">
+<header class="p-3 w-full shadow-md !bg-white sticky top-0 z-50">
   <div
     class="flex align-middle items-center justify-between max-w-screen-2xl mx-auto"
   >
@@ -24,10 +24,18 @@
       >
         <mat-icon>shopping_cart</mat-icon>
       </a>
+      @if (accountService.currentUser()) {
+      <button mat-button [matMenuTriggerFor]="menu">
+        <mat-icon>arrow_drop_down</mat-icon>
+        <span class="ml-2">{{ accountService.currentUser()?.email }}</span>
+      </button>
+
+      } @else {
       <button routerLink="/account/login" mat-stroked-button>Login</button>
       <button routerLink="/account/register" mat-stroked-button>
         Register
       </button>
+      }
     </div>
   </div>
 </header>
@@ -38,3 +46,19 @@
   [mode]="progressBarMode"
 ></mat-progress-bar>
 }
+
+<mat-menu #menu="matMenu" class="!bg-white px-5">
+  <button mat-menu-item class="px-3" routerLink="/cart">
+    <mat-icon>shopping_cart</mat-icon>
+    My Cart
+  </button>
+  <button mat-menu-item class="px-3" routerLink="/orders">
+    <mat-icon>history</mat-icon>
+    My Orders
+  </button>
+  <mat-divider></mat-divider>
+  <button mat-menu-item class="px-3" (click)="logout()">
+    <mat-icon>logout</mat-icon>
+    Logout
+  </button>
+</mat-menu>
