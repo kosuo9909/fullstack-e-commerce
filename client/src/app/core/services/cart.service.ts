@@ -58,7 +58,7 @@ export class CartService {
     this.setCart(cart);
   }
 
-  public removeItemFromCart(id: number, quantity = 1) {
+  public async removeItemFromCart(id: number, quantity = 1) {
     const cart = this.cart();
     if (!cart) return;
 
@@ -71,10 +71,10 @@ export class CartService {
 
       if (cart.items.length === 0) {
         this.deleteCart();
+      } else {
+        this.setCart(cart);
       }
     }
-
-    this.setCart(cart);
   }
 
   public deleteCart() {

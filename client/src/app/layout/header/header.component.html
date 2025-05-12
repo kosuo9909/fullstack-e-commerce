@@ -18,7 +18,9 @@
       <a
         routerLink="/cart"
         routerLinkActive="active"
-        matBadge="{{ cartService.itemCount() }}"
+        matBadge="{{
+          cartService.itemCount() > 0 ? cartService.itemCount() : null
+        }}"
         matBadgeSize="large"
         class="custom-badge mt-2 mr-2"
       >
