@@ -110,8 +110,7 @@ export class StripeService {
       .post<Cart>(`${this._baseUrl}payments/${cart.id}`, {})
       .pipe(
         map((cart) => {
-          // To avoid too much API activity, we are using the signal's set property, instead of setCart (Redis)
-          this._cartService.cart.set(cart);
+          this._cartService.setCart(cart);
           return cart;
         })
       );

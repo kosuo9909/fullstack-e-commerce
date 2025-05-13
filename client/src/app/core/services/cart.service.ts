@@ -1,6 +1,11 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable, computed, signal } from '@angular/core';
-import { Cart, CartItem, Product } from '@edi/app/shared/models';
+import {
+  Cart,
+  CartItem,
+  DeliveryMethod,
+  Product,
+} from '@edi/app/shared/models';
 import { environment } from '@edi/environments/environment';
 import { map } from 'rxjs';
 
@@ -13,14 +18,17 @@ export class CartService {
     () => this.cart()?.items.reduce((acc, item) => acc + item.quantity, 0) ?? 0
   );
 
+  public selectedDelivery = signal<DeliveryMethod | null>(null);
+
   public totals = computed(() => {
+    const deliveryMethod = this.selectedDelivery();
     const subtotal =
       this.cart()?.items.reduce(
         (acc, item) => acc + item.quantity * item.price,
         0
       ) ?? 0;
     const discount = 0;
-    const shipping = 0;
+    const shipping = deliveryMethod ? deliveryMethod.price : 0;
     const total = subtotal - discount + shipping;
     return { subtotal, discount, shipping, total };
   });
