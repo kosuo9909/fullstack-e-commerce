@@ -21,11 +21,20 @@ export class AccountService {
       .post<User>(`${this.baseUrl}login`, values, {
         params,
       })
-      .pipe(map((user) => this.currentUser.set(user)));
+      .pipe(
+        map((user) => {
+          console.log('during login received user', user);
+
+          this.currentUser.set(user);
+          return user;
+        })
+      );
   }
 
   public register(values: any) {
-    return this._http.post(`${this.baseUrl}register`, values);
+    console.log('register', values);
+
+    return this._http.post(`${this.baseUrl}account/register`, values);
   }
 
   public getUserInfo() {
@@ -41,7 +50,17 @@ export class AccountService {
   }
 
   public updateAddress(address: Address) {
-    return this._http.put(`${this.baseUrl}account/address`, address);
+    return this._http.post(`${this.baseUrl}account/address`, address).pipe(
+      tap(() => {
+        this.currentUser.update((user) => {
+          if (user) {
+            user.address = address;
+          }
+
+          return user;
+        });
+      })
+    );
   }
 
   public getAuthState() {

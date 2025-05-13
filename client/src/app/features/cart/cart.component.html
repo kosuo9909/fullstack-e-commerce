@@ -1,14 +1,12 @@
 <section>
   @if (cartService.cart()?.items?.length) {
-  <div class="mx-auto max-w-screen-xl">
-    <div class="flex w-full align-items-start gap-6 mt-8">
-      <div class="w-full">
-        @for (item of cartService.cart()?.items; track item.productId) {
-        <app-cart-item [item]="item"></app-cart-item>
-        }
-      </div>
-      <app-order-summary></app-order-summary>
+  <div class="flex w-full align-items-start gap-6 mt-8">
+    <div class="w-full">
+      @for (item of cartService.cart()?.items; track item.productId) {
+      <app-cart-item [item]="item"></app-cart-item>
+      }
     </div>
+    <app-order-summary></app-order-summary>
   </div>
   } @else {
   <app-empty-state

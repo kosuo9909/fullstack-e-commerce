@@ -16,7 +16,7 @@ public static class AddressMappingExtensions
             Line2 = address.Line2,
             City = address.City,
             State = address.State,
-            ZipCode = address.ZipCode,
+            PostalCode = address.PostalCode,
             Country = address.Country
         };
     }
@@ -29,7 +29,7 @@ public static class AddressMappingExtensions
             Line2 = addressDto.Line2,
             City = addressDto.City,
             State = addressDto.State,
-            ZipCode = addressDto.ZipCode,
+            PostalCode = addressDto.PostalCode,
             Country = addressDto.Country
         };
     }   
@@ -42,7 +42,7 @@ public static class AddressMappingExtensions
         address.Line2 = addressDto.Line2;
         address.City = addressDto.City;
         address.State = addressDto.State;
-        address.ZipCode = addressDto.ZipCode;
+        address.PostalCode = addressDto.PostalCode;
         address.Country = addressDto.Country;
     }       
 }
