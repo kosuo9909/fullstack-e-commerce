@@ -4,6 +4,8 @@ import {
   StripeAddressElement,
   StripeAddressElementOptions,
   StripeElements,
+  StripePaymentElement,
+  StripePaymentElementOptions,
 } from '@stripe/stripe-js';
 import { environment } from '../../../environments/environment';
 import { loadStripe } from '@stripe/stripe-js';
@@ -23,6 +25,7 @@ export class StripeService {
   private _stripePromise: Promise<Stripe | null>;
   private _elements?: StripeElements;
   private _addressElement?: StripeAddressElement;
+  private _paymentElement?: StripePaymentElement;
 
   public constructor() {
     this._stripePromise = loadStripe(environment.stripePublicKey);
@@ -43,12 +46,46 @@ export class StripeService {
           appearance: {
             labels: 'floating',
           },
+          // Add locale for better international support
+          locale: 'bg',
         });
       } else {
         throw new Error('Stripe instance not found');
       }
     }
     return this._elements;
+  }
+
+  public async createPaymentElement() {
+    if (!this._paymentElement) {
+      const elements = await this.initializeElements();
+
+      if (elements) {
+        // For testing - this will show more payment options in development
+        const options: StripePaymentElementOptions = {
+          wallets: {
+            applePay: 'auto',
+            googlePay: 'auto',
+          },
+          // Explicitly list all payment methods you want to show
+          paymentMethodOrder: ['card', 'apple_pay', 'google_pay'],
+          business: { name: 'Your Store Name' },
+          fields: {
+            billingDetails: 'auto',
+          },
+          layout: {
+            type: 'tabs',
+            defaultCollapsed: false,
+          },
+        };
+
+        this._paymentElement = elements.create('payment', options);
+      } else {
+        throw new Error('Elements not initialized');
+      }
+    }
+
+    return this._paymentElement;
   }
 
   public async createAddressElement() {
@@ -119,5 +156,6 @@ export class StripeService {
   public disposeElements() {
     this._elements = undefined;
     this._addressElement = undefined;
+    this._paymentElement = undefined;
   }
 }

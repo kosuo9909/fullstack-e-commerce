@@ -6,14 +6,16 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { RouterLink } from '@angular/router';
 import { StripeService } from '@edi/app/core/services/stripe.service';
-import { StripeAddressElement } from '@stripe/stripe-js';
+import { StripeAddressElement, StripePaymentElement } from '@stripe/stripe-js';
 import { SnackbarService } from '@edi/app/core/services/snackbar.service';
 import { AccountService } from '@edi/app/core/services/account.service';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
 import { firstValueFrom } from 'rxjs';
 import { Address } from '@edi/app/shared/models/user';
 import { CheckoutDeliveryComponent } from './checkout-delivery/checkout-delivery.component';
+import { CheckoutReviewComponent } from './checkout-review/checkout-review.component';
 import { CartService } from '@edi/app/core/services/cart.service';
+import { CurrencyPipe } from '@angular/common';
 @Component({
   selector: 'app-checkout',
   imports: [
@@ -23,16 +25,20 @@ import { CartService } from '@edi/app/core/services/cart.service';
     RouterLink,
     MatCheckboxModule,
     CheckoutDeliveryComponent,
+    CheckoutReviewComponent,
+    CurrencyPipe,
   ],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss',
 })
 export class CheckoutComponent implements OnInit, OnDestroy {
   public addressElement: StripeAddressElement;
+  public paymentElement: StripePaymentElement;
+
+  public cartService = inject(CartService);
   private _stripeService = inject(StripeService);
   private _snackBar = inject(SnackbarService);
   private _accountService = inject(AccountService);
-  private _cartService = inject(CartService);
 
   public saveAddress = false;
 
@@ -40,6 +46,9 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     try {
       this.addressElement = await this._stripeService.createAddressElement();
       this.addressElement.mount('#address-element');
+
+      this.paymentElement = await this._stripeService.createPaymentElement();
+      this.paymentElement.mount('#payment-element');
     } catch (error: any) {
       this._snackBar.error(error.message);
     }
