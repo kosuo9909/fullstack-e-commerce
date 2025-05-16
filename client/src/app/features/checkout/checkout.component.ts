@@ -1,4 +1,4 @@
-import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
 import { MatStepperModule } from '@angular/material/stepper';
 import { OrderSummaryComponent } from '../../shared/components/order-summary/order-summary.component';
 import { MatButtonModule } from '@angular/material/button';
@@ -6,7 +6,12 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { RouterLink } from '@angular/router';
 import { StripeService } from '@edi/app/core/services/stripe.service';
-import { StripeAddressElement, StripePaymentElement } from '@stripe/stripe-js';
+import {
+  StripeAddressElement,
+  StripeAddressElementChangeEvent,
+  StripePaymentElement,
+  StripePaymentElementChangeEvent,
+} from '@stripe/stripe-js';
 import { SnackbarService } from '@edi/app/core/services/snackbar.service';
 import { AccountService } from '@edi/app/core/services/account.service';
 import { StepperSelectionEvent } from '@angular/cdk/stepper';
@@ -15,7 +20,7 @@ import { Address } from '@edi/app/shared/models/user';
 import { CheckoutDeliveryComponent } from './checkout-delivery/checkout-delivery.component';
 import { CheckoutReviewComponent } from './checkout-review/checkout-review.component';
 import { CartService } from '@edi/app/core/services/cart.service';
-import { CurrencyPipe } from '@angular/common';
+import { CurrencyPipe, JsonPipe } from '@angular/common';
 @Component({
   selector: 'app-checkout',
   imports: [
@@ -27,6 +32,7 @@ import { CurrencyPipe } from '@angular/common';
     CheckoutDeliveryComponent,
     CheckoutReviewComponent,
     CurrencyPipe,
+    JsonPipe,
   ],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss',
@@ -34,6 +40,16 @@ import { CurrencyPipe } from '@angular/common';
 export class CheckoutComponent implements OnInit, OnDestroy {
   public addressElement: StripeAddressElement;
   public paymentElement: StripePaymentElement;
+
+  public completionStatus = signal<{
+    address: boolean;
+    card: boolean;
+    delivery: boolean;
+  }>({
+    address: false,
+    card: false,
+    delivery: false,
+  });
 
   public cartService = inject(CartService);
   private _stripeService = inject(StripeService);
@@ -46,13 +62,36 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     try {
       this.addressElement = await this._stripeService.createAddressElement();
       this.addressElement.mount('#address-element');
+      this.addressElement.on('change', this.handleAddressChange);
 
       this.paymentElement = await this._stripeService.createPaymentElement();
       this.paymentElement.mount('#payment-element');
+      this.paymentElement.on('change', this.handleCardChange);
     } catch (error: any) {
       this._snackBar.error(error.message);
     }
   }
+
+  public handleAddressChange = (event: StripeAddressElementChangeEvent) => {
+    this.completionStatus.update((state) => {
+      state.address = true;
+      return state;
+    });
+  };
+
+  public handleCardChange = (event: StripePaymentElementChangeEvent) => {
+    this.completionStatus.update((state) => {
+      state.card = event.complete;
+      return state;
+    });
+  };
+
+  public handleDeliveryChange = (event: boolean) => {
+    this.completionStatus.update((state) => {
+      state.delivery = event;
+      return state;
+    });
+  };
 
   public ngOnDestroy() {
     this._stripeService.disposeElements();
