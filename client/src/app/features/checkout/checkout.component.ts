@@ -1,12 +1,14 @@
 import { Component, inject, OnDestroy, OnInit, signal } from '@angular/core';
-import { MatStepperModule } from '@angular/material/stepper';
+import { MatStepper, MatStepperModule } from '@angular/material/stepper';
 import { OrderSummaryComponent } from '../../shared/components/order-summary/order-summary.component';
 import { MatButtonModule } from '@angular/material/button';
 import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCheckboxChange } from '@angular/material/checkbox';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { StripeService } from '@edi/app/core/services/stripe.service';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import {
+  ConfirmationToken,
   StripeAddressElement,
   StripeAddressElementChangeEvent,
   StripePaymentElement,
@@ -20,7 +22,7 @@ import { Address } from '@edi/app/shared/models/user';
 import { CheckoutDeliveryComponent } from './checkout-delivery/checkout-delivery.component';
 import { CheckoutReviewComponent } from './checkout-review/checkout-review.component';
 import { CartService } from '@edi/app/core/services/cart.service';
-import { CurrencyPipe, JsonPipe } from '@angular/common';
+import { CurrencyPipe } from '@angular/common';
 @Component({
   selector: 'app-checkout',
   imports: [
@@ -32,12 +34,23 @@ import { CurrencyPipe, JsonPipe } from '@angular/common';
     CheckoutDeliveryComponent,
     CheckoutReviewComponent,
     CurrencyPipe,
-    JsonPipe,
+    MatProgressSpinnerModule,
   ],
   templateUrl: './checkout.component.html',
   styleUrl: './checkout.component.scss',
 })
 export class CheckoutComponent implements OnInit, OnDestroy {
+  private _stripeService = inject(StripeService);
+  private _snackBar = inject(SnackbarService);
+  private _accountService = inject(AccountService);
+  private router = inject(Router);
+
+  public cartService = inject(CartService);
+  public saveAddress = false;
+  public confirmationToken?: ConfirmationToken;
+
+  public loading = false;
+
   public addressElement: StripeAddressElement;
   public paymentElement: StripePaymentElement;
 
@@ -50,13 +63,6 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     card: false,
     delivery: false,
   });
-
-  public cartService = inject(CartService);
-  private _stripeService = inject(StripeService);
-  private _snackBar = inject(SnackbarService);
-  private _accountService = inject(AccountService);
-
-  public saveAddress = false;
 
   public async ngOnInit() {
     try {
@@ -114,6 +120,53 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
     if (event.selectedIndex === 2) {
       await firstValueFrom(this._stripeService.createOrUpdatePaymentIntent());
+    }
+
+    if (event.selectedIndex === 3) {
+      await this.getConfirmationToken();
+    }
+  }
+
+  public async confirmPayment(stepper: MatStepper) {
+    this.loading = true;
+    try {
+      if (this.confirmationToken) {
+        const result = await this._stripeService.confirmPayment(
+          this.confirmationToken
+        );
+
+        if (result.error) {
+          throw new Error(result.error.message);
+        } else {
+          this.cartService.deleteCart();
+          this.cartService.selectedDelivery.set(null);
+          this.router.navigateByUrl('/checkout/success');
+          stepper.reset();
+        }
+      }
+    } catch (error: any) {
+      this._snackBar.error(error.message || 'Something went wrong');
+      stepper.previous();
+      return;
+    } finally {
+      this.loading = false;
+    }
+  }
+
+  private async getConfirmationToken() {
+    try {
+      if (
+        Object.values(this.completionStatus()).every((value) => value === true)
+      ) {
+        const result = await this._stripeService.createConfirmationToken();
+        if (result.error) {
+          throw new Error(result.error.message);
+        }
+
+        this.confirmationToken = result.confirmationToken;
+      }
+    } catch (error: any) {
+      this._snackBar.error(error.message);
     }
   }
 

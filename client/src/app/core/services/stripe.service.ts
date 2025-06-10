@@ -1,5 +1,6 @@
 import { Injectable, inject } from '@angular/core';
 import {
+  ConfirmationToken,
   Stripe,
   StripeAddressElement,
   StripeAddressElementOptions,
@@ -133,6 +134,47 @@ export class StripeService {
     }
 
     return this._addressElement;
+  }
+
+  public async createConfirmationToken() {
+    const stripe = await this.getStripeInstance();
+    const elements = await this.initializeElements();
+
+    const result = await elements.submit();
+
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+
+    if (stripe) {
+      return await stripe.createConfirmationToken({ elements });
+    } else {
+      throw new Error('Stripe instance not found');
+    }
+  }
+
+  public async confirmPayment(confirmationToken: ConfirmationToken) {
+    const stripe = await this.getStripeInstance();
+    const elements = await this.initializeElements();
+    const result = await elements.submit();
+
+    if (result.error) {
+      throw new Error(result.error.message);
+    }
+
+    const clientSecret = this._cartService.cart()?.clientSecret;
+
+    if (stripe && clientSecret) {
+      return await stripe.confirmPayment({
+        redirect: 'if_required',
+        clientSecret,
+        confirmParams: {
+          confirmation_token: confirmationToken.id,
+        },
+      });
+    } else {
+      throw new Error('Stripe instance or client secret not found');
+    }
   }
 
   public createOrUpdatePaymentIntent() {
