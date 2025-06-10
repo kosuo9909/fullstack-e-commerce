@@ -6,22 +6,24 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace API.Controllers;
 
-public class PaymentsController(IPaymentService paymentService, IGenericRepository<DeliveryMethod> dmRepo): BaseApiController
+public class PaymentsController(IPaymentService paymentService, IUnitOfWork unit) : BaseApiController
 {
-[Authorize]
-[HttpPost("{cartId}")]
+    [Authorize]
+    [HttpPost("{cartId}")]
 
-public async Task<ActionResult<ShoppingCart>> CreateOrUpdatePaymentIntent(string cartId) {
-    var cart = await paymentService.CreateOrUpdatePaymentIntent(cartId);
+    public async Task<ActionResult<ShoppingCart>> CreateOrUpdatePaymentIntent(string cartId)
+    {
+        var cart = await paymentService.CreateOrUpdatePaymentIntent(cartId);
 
-    if (cart == null) return BadRequest("Problem with your cart");
+        if (cart == null) return BadRequest("Problem with your cart");
 
-    return Ok(  cart);
-}
+        return Ok(cart);
+    }
 
-[HttpGet("delivery-methods")]
-public async Task<ActionResult<IReadOnlyList<DeliveryMethod>>> GetDeliveryMethods() {
-    var deliveryMethods = await dmRepo.ListAllAsync();
-    return Ok(deliveryMethods);
-}
+    [HttpGet("delivery-methods")]
+    public async Task<ActionResult<IReadOnlyList<DeliveryMethod>>> GetDeliveryMethods()
+    {
+        var deliveryMethods = await unit.Repository<DeliveryMethod>().ListAllAsync();
+        return Ok(deliveryMethods);
+    }
 }

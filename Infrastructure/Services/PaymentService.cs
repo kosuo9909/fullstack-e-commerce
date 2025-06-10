@@ -6,8 +6,8 @@ using Stripe;
 
 namespace Infrastructure.Services;
 
-public class PaymentService(IConfiguration config, ICartService cartService, IGenericRepository<Core.Entities.Product> productRepo,
- IGenericRepository<DeliveryMethod> dmRepo): IPaymentService
+public class PaymentService(IConfiguration config, ICartService cartService,
+ IUnitOfWork unit) : IPaymentService
 {
 
     public async Task<ShoppingCart?> CreateOrUpdatePaymentIntent(string cartId)
@@ -19,7 +19,8 @@ public class PaymentService(IConfiguration config, ICartService cartService, IGe
         if (cart == null) return null;
 
         var shippingPrice = 0m;
-
+        var dmRepo = unit.Repository<DeliveryMethod>();
+        var productRepo = unit.Repository<Core.Entities.Product>();
         if (cart.DeliveryMethodId.HasValue)
         {
             var deliveryMethod = await dmRepo.GetByIdAsync((int)cart.DeliveryMethodId);
@@ -42,36 +43,37 @@ public class PaymentService(IConfiguration config, ICartService cartService, IGe
             {
                 item.Price = productItem.Price;
             }
-    }
+        }
 
-    var service = new PaymentIntentService();
-    PaymentIntent? intent = null;
+        var service = new PaymentIntentService();
+        PaymentIntent? intent = null;
 
-    if (string.IsNullOrEmpty(cart.PaymentIntentId))
-    {
-        var options = new PaymentIntentCreateOptions
+        if (string.IsNullOrEmpty(cart.PaymentIntentId))
         {
-            Amount = (long)cart.Items.Sum(i => i.Quantity * (i.Price * 100)) + (long)shippingPrice * 100,
-            Currency = "usd",
-            PaymentMethodTypes = ["card"],
-        };
+            var options = new PaymentIntentCreateOptions
+            {
+                Amount = (long)cart.Items.Sum(i => i.Quantity * (i.Price * 100)) + (long)shippingPrice * 100,
+                Currency = "usd",
+                PaymentMethodTypes = ["card"],
+            };
 
-        intent = await service.CreateAsync(options);
+            intent = await service.CreateAsync(options);
 
-        cart.PaymentIntentId = intent.Id;   
-        cart.ClientSecret = intent.ClientSecret;
-    }
-    else
-    {
-        var options = new PaymentIntentUpdateOptions
+            cart.PaymentIntentId = intent.Id;
+            cart.ClientSecret = intent.ClientSecret;
+        }
+        else
         {
-            Amount = (long)cart.Items.Sum(i => i.Quantity * (i.Price * 100)) + (long)shippingPrice * 100,
-        };
-    
-        await service.UpdateAsync(cart.PaymentIntentId, options);
+            var options = new PaymentIntentUpdateOptions
+            {
+                Amount = (long)cart.Items.Sum(i => i.Quantity * (i.Price * 100)) + (long)shippingPrice * 100,
+            };
+
+            await service.UpdateAsync(cart.PaymentIntentId, options);
+        }
+
+        await cartService.SetCartAsync(cart);
+
+        return cart;
     }
-
-    await cartService.SetCartAsync(cart);
-
-    return cart;
-}}
+}
