@@ -1,17 +1,16 @@
-using System;
 using Core.Entities;
 using Core.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Data;
 
 public class SpecificationEvaluator<T> where T : BaseEntity
 {
-
     public static IQueryable<T> GetQuery(IQueryable<T> query, ISpecification<T> spec)
     {
         if (spec.Criteria != null)
         {
-            query = query.Where(spec.Criteria);
+            query = query.Where(spec.Criteria); // x => x.Brand == brand
         }
 
         if (spec.OrderBy != null)
@@ -34,6 +33,9 @@ public class SpecificationEvaluator<T> where T : BaseEntity
             query = query.Skip(spec.Skip).Take(spec.Take);
         }
 
+        query = spec.Includes.Aggregate(query, (current, include) => current.Include(include));
+        query = spec.IncludeStrings.Aggregate(query, (current, include) => current.Include(include));
+
         return query;
     }
 
@@ -42,7 +44,7 @@ public class SpecificationEvaluator<T> where T : BaseEntity
     {
         if (spec.Criteria != null)
         {
-            query = query.Where(spec.Criteria);
+            query = query.Where(spec.Criteria); // x => x.Brand == brand
         }
 
         if (spec.OrderBy != null)
@@ -74,5 +76,4 @@ public class SpecificationEvaluator<T> where T : BaseEntity
 
         return selectQuery ?? query.Cast<TResult>();
     }
-
 }
