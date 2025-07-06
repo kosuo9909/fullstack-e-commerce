@@ -1,12 +1,14 @@
 @use "@angular/material" as mat;
 @import "tailwindcss";
 
-$customTheme: mat.define-theme((
-  color: (
-    theme-type: light,
-    primary: mat.$rose-palette,
+$customTheme: mat.define-theme(
+  (
+    color: (
+      theme-type: light,
+      primary: mat.$rose-palette,
+    ),
   )
-));
+);
 
 .custom-theme {
   @include mat.all-component-themes($customTheme);
