@@ -2,7 +2,7 @@ using Core.Entities;
 
 namespace Core.Specifications;
 
-public class ProductSpecification : BaseSpecifications<Product>
+public class ProductSpecification : BaseSpecification<Product>
 {
     public ProductSpecification(ProductSpecParams specParams) : base(p =>
     (string.IsNullOrEmpty(specParams.Search) || p.Name.ToLower().Contains(specParams.Search)) &&

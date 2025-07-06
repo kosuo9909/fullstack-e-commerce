@@ -23,6 +23,9 @@ import { CheckoutDeliveryComponent } from './checkout-delivery/checkout-delivery
 import { CheckoutReviewComponent } from './checkout-review/checkout-review.component';
 import { CartService } from '@edi/app/core/services/cart.service';
 import { CurrencyPipe } from '@angular/common';
+import { ShippingAddress } from '@edi/app/shared/models';
+import { OrderToCreate } from '@edi/app/shared/models/order';
+import { OrderService } from '@edi/app/core/services/order.service';
 @Component({
   selector: 'app-checkout',
   imports: [
@@ -43,7 +46,8 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   private _stripeService = inject(StripeService);
   private _snackBar = inject(SnackbarService);
   private _accountService = inject(AccountService);
-  private router = inject(Router);
+  private _orderService = inject(OrderService);
+  private _router = inject(Router);
 
   public cartService = inject(CartService);
   public saveAddress = false;
@@ -110,7 +114,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   public async onStepChange(event: StepperSelectionEvent) {
     if (event.selectedIndex === 1) {
       if (this.saveAddress) {
-        const address = await this.getAddressFromStripeAddressElement();
+        const address = await this.getAddressFromStripeAddress();
 
         if (address) {
           firstValueFrom(this._accountService.updateAddress(address));
@@ -135,13 +139,31 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           this.confirmationToken
         );
 
-        if (result.error) {
-          throw new Error(result.error.message);
-        } else {
+        if (result.paymentIntent?.status === 'succeeded') {
+          const order = await this.createOrderModel();
+          const orderResult = await firstValueFrom(
+            this._orderService.createOrder(order)
+          );
+
+          if (orderResult) {
+            this._orderService.orderComplete = true;
+            this.cartService.deleteCart();
+            this.cartService.selectedDelivery.set(null);
+            this._router.navigateByUrl('/checkout/success');
+            stepper.reset();
+          } else {
+            throw new Error('Problem creating order');
+          }
+
           this.cartService.deleteCart();
           this.cartService.selectedDelivery.set(null);
-          this.router.navigateByUrl('/checkout/success');
+          this._router.navigateByUrl('/checkout/success');
           stepper.reset();
+          return;
+        } else if (result.error) {
+          throw new Error(result.error.message);
+        } else {
+          throw new Error('Something went wrong.');
         }
       }
     } catch (error: any) {
@@ -151,6 +173,30 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     } finally {
       this.loading = false;
     }
+  }
+
+  private async createOrderModel(): Promise<OrderToCreate> {
+    const cart = this.cartService.cart();
+    const shippingAddress =
+      (await this.getAddressFromStripeAddress()) as ShippingAddress;
+    const card = this.confirmationToken?.payment_method_preview.card;
+
+    if (!cart?.id || !cart.deliveryMethodId || !card || !shippingAddress) {
+      throw new Error('Problem creating order');
+    }
+
+    return {
+      cartId: cart.id,
+      paymentSummary: {
+        last4: +card.last4,
+        brand: card.brand,
+        expMonth: card.exp_month,
+        expYear: card.exp_year,
+      },
+      deliveryMethodId: cart.deliveryMethodId,
+      shippingAddress,
+      discount: this.cartService.totals()?.discount,
+    };
   }
 
   private async getConfirmationToken() {
@@ -170,13 +216,16 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     }
   }
 
-  private async getAddressFromStripeAddressElement(): Promise<Address | null> {
+  private async getAddressFromStripeAddress(): Promise<
+    Address | ShippingAddress | null
+  > {
     const result = await this.addressElement.getValue();
 
     const address = result.value.address;
 
     if (address) {
       return {
+        name: result.value.name || '',
         line1: address.line1,
         line2: address.line2 || undefined,
         city: address.city,

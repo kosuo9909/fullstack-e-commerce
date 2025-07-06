@@ -3,6 +3,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { Address, User } from '@edi/app/shared/models/user';
 import { environment } from '@edi/environments/environment';
 import { map, tap } from 'rxjs';
+import { SignalrService } from './signalr.service';
 
 @Injectable({
   providedIn: 'root',
@@ -10,6 +11,8 @@ import { map, tap } from 'rxjs';
 export class AccountService {
   public baseUrl = environment.apiUrl;
   public currentUser = signal<User | null>(null);
+
+  private _signalRService = inject(SignalrService);
 
   private _http = inject(HttpClient);
 
@@ -27,6 +30,9 @@ export class AccountService {
 
           this.currentUser.set(user);
           return user;
+        }),
+        tap(() => {
+          this._signalRService.createHubConnection();
         })
       );
   }
@@ -44,9 +50,12 @@ export class AccountService {
   }
 
   public logout() {
-    return this._http
-      .post(`${this.baseUrl}account/logout`, {})
-      .pipe(tap(() => this.currentUser.set(null)));
+    return this._http.post(`${this.baseUrl}account/logout`, {}).pipe(
+      tap(() => {
+        this.currentUser.set(null);
+        this._signalRService.stopHubConnection();
+      })
+    );
   }
 
   public updateAddress(address: Address) {
