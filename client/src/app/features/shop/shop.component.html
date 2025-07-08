@@ -1,59 +1,91 @@
+<!-- Shop Hero Section -->
+<div class="shop-hero">
+  <div class="shop-hero__background"></div>
+  <div class="shop-hero__content">
+    <span class="shop-hero__badge animate-fade-in-up">
+      <span class="badge-dot"></span>
+      Premium Collection
+    </span>
+    <h1 class="shop-hero__title animate-fade-in-up animation-delay-200">
+      <span class="title-main">Discover</span>
+      <span class="title-accent">Premium Gear</span>
+    </h1>
+    <p class="shop-hero__subtitle animate-fade-in-up animation-delay-400">
+      Hand-selected winter sports equipment from world-renowned brands
+    </p>
+  </div>
+</div>
+
+<!-- Shop Content -->
 @if (products) {
-<div class="flex flex-col gap-3">
-  <div class="flex justify-between mb-3">
-    <mat-paginator
-      class="!bg-white"
-      [length]="products.count"
-      [pageSize]="shopParams.pageSize"
-      [pageSizeOptions]="[5, 10, 15, 20]"
-      (page)="handlePageEvent($event)"
-      [showFirstLastButtons]="true"
-      [pageIndex]="shopParams.pageNumber - 1"
-      aria-label="Select page"
-    ></mat-paginator>
+<div class="shop-container">
+  <!-- Search & Controls Bar -->
+  <div class="shop-controls">
+    <div class="shop-controls__left">
+      <div class="search-container">
+        <form
+          #searchForm="ngForm"
+          class="search-form"
+          (ngSubmit)="onSearchChange()"
+        >
+          <div class="search-input-wrapper">
+            <input
+              class="search-input"
+              placeholder="Search products..."
+              name="search"
+              id="search"
+              type="search"
+              [(ngModel)]="shopParams.search"
+            />
+            <button type="submit" class="search-button">
+              <mat-icon class="search-icon">search</mat-icon>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
 
-    <form
-      #searchForm="ngForm"
-      class="relative flex items-center w-full max-w-md mx-4"
-      (ngSubmit)="onSearchChange()"
-    >
-      <input
-        class="block w-full p-4 text-sm text-gray-900 border border-gray-300 rounded-lg"
-        placeholder="Search"
-        name="search"
-        id="search"
-        type="search"
-        [(ngModel)]="shopParams.search"
-      />
-
-      <button
-        mat-icon-button
-        type="submit"
-        class="absolute inset-y-0 right-12 flex items-center pl-3"
-      >
-        <mat-icon>search</mat-icon>
+    <div class="shop-controls__right">
+      <button class="control-button" (click)="openFiltersDialog()">
+        <mat-icon>tune</mat-icon>
+        <span>Filters</span>
       </button>
-    </form>
-
-    <div class="flex gap-3">
-      <button mat-stroked-button (click)="openFiltersDialog()">
-        <mat-icon>filter_list</mat-icon>
-        <span class="ml-2">Filters</span>
-      </button>
-      <button mat-stroked-button [matMenuTriggerFor]="sortMenu">
-        <mat-icon>swap_vert</mat-icon>
-        <span class="ml-2">Sort</span>
+      <button class="control-button" [matMenuTriggerFor]="sortMenu">
+        <mat-icon>sort</mat-icon>
+        <span>Sort</span>
       </button>
     </div>
   </div>
-</div>
-<div class="grid grid-cols-5 gap-4">
-  @for (product of products.data; track product.id) {
-  <app-product-item [product]="product"></app-product-item>
-  }
+
+  <!-- Products Grid -->
+  <div class="products-section">
+    <div class="products-grid">
+      @for (product of products.data; track product.id) {
+      <app-product-item
+        [product]="product"
+        class="product-item"
+      ></app-product-item>
+      }
+    </div>
+
+    <!-- Pagination -->
+    <div class="pagination-container">
+      <mat-paginator
+        class="custom-paginator"
+        [length]="products.count"
+        [pageSize]="shopParams.pageSize"
+        [pageSizeOptions]="[8, 16, 24, 32]"
+        (page)="handlePageEvent($event)"
+        [showFirstLastButtons]="true"
+        [pageIndex]="shopParams.pageNumber - 1"
+        aria-label="Select page"
+      ></mat-paginator>
+    </div>
+  </div>
 </div>
 
-<mat-menu #sortMenu="matMenu">
+<!-- Sort Menu -->
+<mat-menu #sortMenu="matMenu" class="sort-menu">
   <mat-selection-list
     [multiple]="false"
     (selectionChange)="onSortChange($event)"

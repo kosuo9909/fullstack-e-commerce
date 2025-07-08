@@ -22,11 +22,26 @@ import { CartService } from '@edi/app/core/services/cart.service';
 export class ProductItemComponent {
   @Input() public product?: Product;
 
+  public isInWishlist = false;
+  public isAddingToCart = false;
+
   public constructor(private _cartService: CartService) {}
 
   public addItemToCart() {
-    if (this.product) {
-      this._cartService.addItemToCart(this.product);
+    if (this.product && !this.isAddingToCart) {
+      this.isAddingToCart = true;
+
+      // Simulate loading state for better UX
+      setTimeout(() => {
+        this._cartService.addItemToCart(this.product!);
+        this.isAddingToCart = false;
+      }, 800);
     }
+  }
+
+  public toggleWishlist() {
+    this.isInWishlist = !this.isInWishlist;
+    // TODO: Implement actual wishlist service when available
+    // this._wishlistService.toggleItem(this.product);
   }
 }

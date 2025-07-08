@@ -1,0 +1,277 @@
+// Hero animations
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+.animation-delay-200 {
+  animation-delay: 0.2s;
+}
+
+.animation-delay-400 {
+  animation-delay: 0.4s;
+}
+
+.animation-delay-600 {
+  animation-delay: 0.6s;
+}
+
+// Hero title special styling
+.hero-title {
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+  letter-spacing: -0.02em;
+
+  span {
+    display: inline-block;
+  }
+}
+
+// Glassmorphism effects
+.backdrop-blur-md {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+// Hover effects for buttons
+button {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.025em;
+
+  &:hover {
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+  }
+}
+
+// Feature cards enhanced styling
+.group {
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+
+  &:hover {
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Scroll indicator animation
+@keyframes bounce {
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  40%,
+  43% {
+    transform: translate3d(0, -10px, 0);
+  }
+  70% {
+    transform: translate3d(0, -5px, 0);
+  }
+  90% {
+    transform: translate3d(0, -2px, 0);
+  }
+}
+
+.animate-bounce {
+  animation: bounce 2s infinite;
+}
+
+// Gradient text effect
+.bg-clip-text {
+  background-clip: text;
+  -webkit-background-clip: text;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .hero-title {
+    span:first-child {
+      font-size: 2.5rem !important;
+    }
+    span:last-child {
+      font-size: 3rem !important;
+    }
+  }
+}
+
+// Enhanced shadows
+.shadow-blue-500\/25 {
+  box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.25);
+}
+
+// Smooth scrolling
+html {
+  scroll-behavior: smooth;
+}
+
+// Custom gradient overlays
+.bg-opacity-40 {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+
+.bg-opacity-10 {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.bg-opacity-20 {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+// Border opacity utilities
+.border-opacity-30 {
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.border-opacity-50 {
+  border-color: rgba(255, 255, 255, 0.5);
+}
+
+// ============= SOPHISTICATED MATURE BACKGROUND =============
+
+// Deep Gradient Background (Professional)
+.sophisticated-gradient-bg {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    135deg,
+    #0f172a 0%,
+    #1e293b 25%,
+    #334155 50%,
+    #475569 75%,
+    #64748b 100%
+  );
+  background-size: 300% 300%;
+  animation: subtleGradientShift 20s ease-in-out infinite;
+}
+
+@keyframes subtleGradientShift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+// Subtle Grid Pattern (Premium Feel)
+.grid-pattern {
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(
+      rgba(255, 255, 255, 0.02) 1px,
+      transparent 1px
+    ),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+  background-size: 100px 100px;
+  animation: gridMove 30s linear infinite;
+}
+
+@keyframes gridMove {
+  0% {
+    transform: translate(0, 0);
+  }
+  100% {
+    transform: translate(100px, 100px);
+  }
+}
+
+// Elegant Floating Orbs (Minimal & Sophisticated)
+.floating-orbs {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.orb {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.08) 0%,
+    rgba(255, 255, 255, 0.02) 50%,
+    transparent 100%
+  );
+  backdrop-filter: blur(2px);
+  animation: elegantFloat 15s ease-in-out infinite;
+}
+
+.orb-1 {
+  width: 200px;
+  height: 200px;
+  top: 20%;
+  left: 10%;
+  animation-delay: 0s;
+}
+
+.orb-2 {
+  width: 150px;
+  height: 150px;
+  top: 60%;
+  right: 15%;
+  animation-delay: 5s;
+}
+
+.orb-3 {
+  width: 100px;
+  height: 100px;
+  bottom: 30%;
+  left: 70%;
+  animation-delay: 10s;
+}
+
+@keyframes elegantFloat {
+  0%,
+  100% {
+    transform: translateY(0px) translateX(0px);
+    opacity: 0.3;
+  }
+  50% {
+    transform: translateY(-30px) translateX(20px);
+    opacity: 0.6;
+  }
+}
+
+// Noise Texture Overlay (Premium Texture)
+.noise-overlay {
+  position: absolute;
+  inset: 0;
+  background: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='1' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+// Enhanced responsive design for creative background
+@media (max-width: 768px) {
+  .orb {
+    transform: scale(0.8);
+  }
+
+  .sophisticated-gradient-bg {
+    animation-duration: 15s;
+  }
+
+  .grid-pattern {
+    background-size: 50px 50px;
+  }
+}
+
+@media (max-width: 480px) {
+  .orb {
+    transform: scale(0.6);
+  }
+
+  .noise-overlay {
+    opacity: 0.5;
+  }
+}

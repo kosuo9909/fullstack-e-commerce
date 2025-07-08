@@ -1,6 +1,9 @@
 @use "@angular/material" as mat;
 @import "tailwindcss";
 
+// Import our custom design system
+@import "app/shared/styles/theme.scss";
+
 $customTheme: mat.define-theme(
   (
     color: (

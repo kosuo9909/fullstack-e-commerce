@@ -1,19 +1,65 @@
 @if (product) {
-<mat-card
-  appearance="raised"
-  class="product-card !bg-transparent"
-  [routerLink]="['/shop', product.id]"
->
-  <img mat-card-image src="{{ product.pictureUrl }}" alt="Product image" />
-  <mat-card-content class="mt-2">
-    <h2 class="text-sm font-semibold uppercase">{{ product.name }}</h2>
-    <p class="font-light">{{ product.price | currency }}</p>
-  </mat-card-content>
-  <mat-card-actions (click)="$event.stopPropagation()">
-    <button mat-stroked-button class="w-full" (click)="addItemToCart()">
-      <mat-icon>add_shopping_cart</mat-icon>
-      Add to cart
-    </button>
-  </mat-card-actions>
-</mat-card>
+<div class="product-card">
+  <div
+    class="product-card__image-container"
+    [routerLink]="['/shop', product.id]"
+  >
+    <img
+      class="product-card__image"
+      [src]="product.pictureUrl"
+      [alt]="product.name"
+      loading="lazy"
+    />
+    <div class="product-card__badge">
+      <span class="badge-text">Premium</span>
+    </div>
+    <div class="product-card__overlay">
+      <button
+        class="action-btn action-btn--view"
+        [routerLink]="['/shop', product.id]"
+        type="button"
+        title="View Details"
+      >
+        <mat-icon>launch</mat-icon>
+      </button>
+    </div>
+  </div>
+
+  <div class="product-card__content">
+    <div class="product-card__details">
+      <p class="product-card__brand">{{ product.brand }}</p>
+      <h3 class="product-card__title" [routerLink]="['/shop', product.id]">
+        {{ product.name }}
+      </h3>
+      <div class="product-card__price">{{ product.price | currency }}</div>
+    </div>
+
+    <div class="product-card__actions">
+      <button
+        class="action-btn action-btn--wishlist"
+        (click)="toggleWishlist(); $event.stopPropagation()"
+        type="button"
+        title="Add to Wishlist"
+        [class.active]="isInWishlist"
+      >
+        <mat-icon>{{ isInWishlist ? "favorite" : "favorite_border" }}</mat-icon>
+      </button>
+
+      <button
+        class="add-to-cart-btn"
+        (click)="addItemToCart(); $event.stopPropagation()"
+        type="button"
+        [disabled]="isAddingToCart"
+      >
+        @if (isAddingToCart) {
+        <mat-icon class="loading-icon">refresh</mat-icon>
+        <span class="btn-text">Adding...</span>
+        } @else {
+        <mat-icon class="cart-icon">add_shopping_cart</mat-icon>
+        <span class="btn-text">Add to Cart</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>
 }
